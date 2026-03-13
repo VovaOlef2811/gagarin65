@@ -309,6 +309,21 @@
             }
         }
     </style>
+
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function(m,e,t,r,i,k,a){
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=107695952', 'ym');
+
+        ym(107695952, 'init', {ssr:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/107695952" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+
 </head>
 <body>
 
@@ -555,21 +570,22 @@
         document.getElementById('finish-screen').classList.add('active');
         document.getElementById('final-res').innerText = `Твой результат: ${score} из ${questions.length}`;
 
-        if (isBoss) {
-            document.getElementById('final-title').innerText = "Главный Конструктор: Королёв";
+        if (typeof ym === "function") {
+            ym(107695952, 'reachGoal', 'quiz_finish');
         }
-        
+
+        if (isBoss) {
+            document.getElementById('final-title').innerText = "Главный Конструктор: Королев";
+        }
+
         const video = document.getElementById('final-video');
         document.getElementById('vid-container').style.display = 'block';
         video.load();
         video.play().catch(() => console.log("Видео готово к просмотру"));
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function downloadCertificate() {
         const template = new Image();
-        template.crossOrigin = "anonymous";
         template.src = "certificate_template.png";
 
         template.onload = function () {
@@ -585,36 +601,44 @@
             const dateText = new Date().toLocaleDateString("ru-RU");
 
             ctx.textAlign = "center";
-            ctx.fillStyle = "#ffffff";
 
+            // Имя участника
+            ctx.fillStyle = "#ffffff";
             ctx.font = "bold 54px Arial";
             ctx.fillText(safeName, canvas.width * 0.61, canvas.height * 0.43);
 
-            ctx.font = "bold 34px Arial";
+            // Результат
             ctx.fillStyle = "#3CFFD9";
-            ctx.fillText(`${score} из ${questions.length}`, canvas.width * 0.60, canvas.height * 0.64);
+            ctx.font = "bold 34px Arial";
+            ctx.fillText(`${score} из ${questions.length}`, canvas.width * 0.655, canvas.height * 0.64);
 
-            ctx.font = "28px Arial";
+            // Дата
             ctx.fillStyle = "#ffffff";
+            ctx.font = "28px Arial";
             ctx.fillText(dateText, canvas.width * 0.60, canvas.height * 0.745);
 
+            // Итоговая фраза
             let resultText = "Спасибо за участие!";
             if (score >= 11) resultText = "Отличный результат!";
             else if (score >= 8) resultText = "Хороший результат!";
             else if (score >= 5) resultText = "Молодец!";
 
-            ctx.font = "bold 38px Arial";
             ctx.fillStyle = "#FFD75E";
+            ctx.font = "bold 38px Arial";
             ctx.fillText(resultText, canvas.width * 0.60, canvas.height * 0.85);
 
+            if (typeof ym === "function") {
+                ym(107695952, 'reachGoal', 'certificate_download');
+            }
+
             const link = document.createElement('a');
-            link.download = `sertifikat_${safeName}_${score}.png`;
+            link.download = `certificate_${safeName}_${score}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
         };
 
         template.onerror = function () {
-            alert("Не удалось загрузить certificate_template.png. Проверьте, что файл лежит рядом с index.html");
+            alert("Не удалось загрузить certificate_template.png");
         };
     }
 </script>
