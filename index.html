@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гагарин в космосе: 65 лет легендарному полёту!</title>
+    <style>
+        :root { 
+            --main-color: #00d2ff;
+            --bg-dark: #050a10; 
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            transition: 0.5s;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        #game-container { 
+            width: 100%;
+            max-width: 700px; 
+            margin: 10px auto; 
+            background: rgba(15, 20, 30, 0.95); 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 2px solid var(--main-color); 
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2); 
+        }
+
+        .theme-pic { 
+            width: 100%; 
+            height: auto; 
+            max-height: 350px; 
+            object-fit: contain; 
+            border-radius: 12px; 
+            margin-bottom: 15px; 
+            background: #000; 
+            display: block;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #quiz-screen {
+            padding-bottom: 20px;
+        }
+
+        #options {
+            margin-bottom: 20px;
+        }
+        
+        .option-btn { 
+            display: block;
+            width: 100%;
+            margin: 12px 0;
+            padding: 16px 16px;
+            border: 1px solid var(--main-color);
+            background: rgba(0,210,255,0.05); 
+            color: white;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: 0.2s;
+            font-size: 16px;
+            line-height: 1.45;
+            text-align: left;
+            word-break: break-word;
+            white-space: normal;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #options .option-btn:last-child {
+            margin-bottom: 24px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(0,210,255,0.2);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 1;
+        }
+        
+        .correct {
+            background: #2ecc71 !important;
+            border-color: #2ecc71;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .wrong {
+            background: #e74c3c !important;
+            border-color: #e74c3c;
+            opacity: 0.92;
+        }
+        
+        #commentary { 
+            margin: 15px 0 18px 0;
+            padding: 15px;
+            border-radius: 10px; 
+            background: rgba(255,255,255,0.08);
+            display: none; 
+            text-align: left;
+            border-left: 5px solid var(--main-color); 
+            font-size: 0.98em;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .btn-main { 
+            background: var(--main-color);
+            color: #000; 
+            padding: 14px 28px;
+            border: none;
+            border-radius: 30px; 
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 10px;
+            box-shadow: 0 0 15px rgba(0,210,255,0.3);
+            font-size: 15px;
+            max-width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        input#p-name { 
+            padding: 12px;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 8px; 
+            border: 1px solid var(--main-color);
+            background: #000; 
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 10px; 
+        }
+        
+        .video-container {
+            display: none;
+            margin-top: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--main-color);
+            background: black;
+            width: 100%;
+        }
+
+        video#final-video {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 400px;
+        }
+        
+        .easter-egg {
+            --main-color: #0088ff !important;
+        }
+        
+        .stats-text {
+            color: var(--main-color);
+            font-weight: bold;
+        }
+
+        .quiz-top {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .quiz-pill {
+            display: block;
+            width: 100%;
+            background: rgba(0,210,255,0.08);
+            border: 1px solid rgba(0,210,255,0.25);
+            border-radius: 10px;
+            padding: 10px 12px;
+            line-height: 1.35;
+        }
+
+        #display-name {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        #quiz-stats {
+            white-space: nowrap;
+        }
+
+        .info-block {
+            margin-top: 20px;
+            border: 1px dashed var(--main-color);
+            padding: 15px;
+            background: rgba(0,210,255,0.05);
+            border-radius: 12px;
+        }
+
+        h1, h2, h3, h4, p {
+            word-break: break-word;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+
+            #game-container {
+                padding: 14px;
+                margin: 6px auto;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                line-height: 1.25;
+            }
+
+            h2 {
+                font-size: 1.35rem;
+            }
+
+            h3 {
+                font-size: 1.05rem !important;
+                line-height: 1.35;
+            }
+
+            .theme-pic {
+                max-height: 240px;
+                margin-bottom: 12px;
+            }
+
+            .option-btn {
+                font-size: 15px;
+                padding: 14px;
+                border-radius: 10px;
+            }
+
+            .btn-main {
+                width: 100%;
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            #commentary {
+                font-size: 0.95em;
+                padding: 12px;
+            }
+
+            #final-res {
+                display: block !important;
+                width: 100%;
+                padding: 10px 12px !important;
+                font-size: 1rem;
+            }
+
+            p[style*="font-size: 0.8em"] {
+                margin-top: 14px !important;
+                line-height: 1.4;
+            }
+        }
+
+        @media (max-width: 380px) {
+            body {
+                padding: 4px;
+            }
+
+            #game-container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .option-btn {
+                font-size: 14px;
+            }
+
+            .btn-main {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="start-screen" class="screen active">
+        <h1 style="color: var(--main-color); margin-top:0;">65 лет легендарному полёту! ПОЕХАЛИ! 🚀</h1>
+        <img src="start.png" class="theme-pic" alt="Гагарин">
+        <p>Пройди викторину о первом полёте человека в космос!</p>
+        <input type="text" id="p-name" placeholder="Введите имя пилота..." maxlength="15">
+        <br>
+        <button class="btn-main" onclick="start()">Взлёт!</button>
+        <p style="font-size: 0.8em; opacity: 0.6; margin-top: 25px;"><strong>Автор проекта:</strong> Олефиренко Владимир, ученик 4Б класса</p>
+        <p style="font-size: 0.8em; opacity: 0.6; margin-top: 25px;"><strong>Руководитель:</strong> Кулешина Лариса Николаевна</p>
+        <p style="font-size: 0.8em; opacity: 0.6; margin-top: 25px;"><strong>Школа:</strong> ГАОУ МО "Химкинский лицей"</p>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="quiz-top stats-text">
+            <div id="display-name" class="quiz-pill"></div>
+            <div id="quiz-stats" class="quiz-pill">Вопрос: <span id="q-num">1</span>/13 | Счёт: <span id="score">0</span></div>
+        </div>
+        <img id="q-img" src="" class="theme-pic" alt="Иллюстрация к вопросу">
+        <h3 id="q-text" style="margin: 10px 0; font-size: 1.1em;"></h3>
+        <div id="options"></div>
+        <div id="commentary"></div>
+        <button id="next-btn" class="btn-main" style="display:none" onclick="next()">Дальше →</button>
+    </div>
+
+    <div id="finish-screen" class="screen">
+        <h2 id="final-title" style="color: var(--main-color);">Миссия успешно завершена! 🎉</h2>
+        <h3 id="final-res" style="color: white; border: 1px solid var(--main-color); display: inline-block; padding: 10px 20px; border-radius: 10px;"></h3>
+        
+        <div class="video-container" id="vid-container">
+            <video id="final-video" controls playsinline preload="metadata">
+                <source src="gagarin_video.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="info-block">
+            <h4 style="color: var(--main-color); margin-top: 0;">🏆 Глобальный рейтинг пилотов:</h4>
+            <button class="btn-main" onclick="downloadCertificate()" style="margin-top:15px;">
+            Скачать сертификат
+        </button>
+        </div>
+
+        <button class="btn-main" onclick="location.reload()" style="margin-top:15px; background:#222; color:#fff; padding: 10px 20px;">Заново</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "Когда состоялся первый полёт человека в космос?",
+            img: "q1.jpg",
+            ans: [
+                {t: "4 октября 1957 года", ok: false, c: "Неверно, в этот день состоялся запуск первого искусственного 'Спутника-1'"},
+                {t: "12 апреля 1961 года", ok: true, c: "Верно, запомни эту историческую дату!"},
+                {t: "9 марта 1934 года", ok: false, c: "Неверно, это День Рождения Юрия Гагарина!"}
+            ]
+        },
+        {
+            q: "Как звали первого космонавта Земли?",
+            img: "q2.jpg",
+            ans: [
+                {t: "Герман Степанович Титов", ok: false, c: "Неверно, Титов - дублёр Гагарина, космонавт №2."},
+                {t: "Алексей Архипович Леонов", ok: false, c: "Неверно, Леонов - это космонавт, первым вышедший в открытый космос."},
+                {t: "Юрий Алексеевич Гагарин", ok: true, c: "Верно! Легендарное имя!"}
+            ]
+        },
+        {
+            q: "Как назывался космический корабль Гагарина?",
+            img: "q3.jpg",
+            ans: [
+                {t: "Восток-1", ok: true, c: "Верно! Первый в мире пилотируемый корабль."},
+                {t: "Союз-1", ok: false, c: "Неверно, это следующее поколение космических кораблей."},
+                {t: "Буран", ok: false, c: "Неверно, это многоразовый автоматический корабль-ракетоплан."}
+            ]
+        },
+        {
+            q: "Кто был главным конструктором космической программы СССР?",
+            img: "q4.jpg",
+            ans: [
+                {t: "Константин Эдуардович Циолковский", ok: false, c: "Неверно, это основоположник космической теории."},
+                {t: "Сергей Павлович Королёв", ok: true, c: "Верно! Советский учёный, конструктор ракетных систем."},
+                {t: "Глеб Евгеньевич Лозино-Лозинский", ok: false, c: "Неверно, это конструктор 'Бурана'."}
+            ]
+        },
+        {
+            q: "Какую фразу произнёс Гагарин в момент старта?",
+            img: "q5.jpg",
+            ans: [
+                {t: "«Вперёд, к звёздам!»", ok: false, c: "Неверно, «Вперёд, к звёздам!» часто приписывают Константину Эдуардовичу Циолковскому, основоположнику теоретической космонавтики."},
+                {t: "«Полетели!»", ok: false, c: "Неверно, «Полетели!» вместо знаменитого гагаринского «Поехали!» произнес лётчик-космонавт Владимир Комаров."},
+                {t: "«Поехали!»", ok: true, c: "Верно! Легендарные слова."}
+            ]
+        },
+        {
+            q: "Зачем на шлеме в последний момент написали «СССР»?",
+            img: "q6.jpg",
+            ans: [
+                {t: "Чтобы его не перепутали со шпионом", ok: true, c: "Верно! Чтобы люди не приняли его за врага."},
+                {t: "Для красоты", ok: false, c: "Неверно, надпись сделали для безопасности Гагарина, так как в 1960г. в небе над Свердловском был сбит высотный самолёт-разведчик ВВС США, американский пилот Пауэрс спасся на парашюте"},
+                {t: "Так требовали правила полетов", ok: false, c: "Неверно, таких правил ещё не существовало"}
+            ]
+        },
+        {
+            q: "Что Гагарин делал в космосе во время полёта?",
+            img: "q7.jpg",
+            ans: [
+                {t: "Сочинял новые песни", ok: false, c: "Неверно, хотя во время полёта он напевал известные песни."},
+                {t: "Ел и пил из тюбиков", ok: true, c: "Верно! Он проверил, может ли человек глотать пищу в невесомости."},
+                {t: "Спал", ok: false, c: "Неверно, для сна полёт был слишком коротким."}
+            ]
+        },
+        {
+            q: "Сколько времени длился первый полёт?",
+            img: "q8.jpg",
+            ans: [
+                {t: "108 минут", ok: true, c: "Верно! 108 минут славы."},
+                {t: "Весь день", ok: false, c: "Неверно, очень долго для первого полёта"},
+                {t: "Более суток", ok: false, c: "Неверно, это рекорд Германа Титова."}
+            ]
+        },
+        {
+            q: "Сколько витков вокруг Земли он совершил?",
+            img: "q9.jpg",
+            ans: [
+                {t: "2 витка", ok: false, c: "Неверно, 2 витка вокруг Земли совершил автоматический безэкипажный 'Буран' в полёте 15 ноября 1988 года"},
+                {t: "5 витков", ok: false, c: "Неверно, рисковано для первого полёта."},
+                {t: "1 виток", ok: true, c: "Верно! Ровно один круг вокруг планеты."}
+            ]
+        },
+        {
+            q: "Почему код «125» для активации ручного режима управления кораблём лежал в конверте?",
+            img: "q10.jpg",
+            ans: [
+                {t: "Чтобы не узнали враги", ok: false, c: "Неверно, враги тут ни при чём, это была дополнительная проверка психики в невесомости"},
+                {t: "Это была проверка психики", ok: true, c: "Верно! Считалось: если пилот вскрыл конверт и ввёл код — он в здравом уме."},
+                {t: "Это был секрет Королёва", ok: false, c: "Неверно, считалось: если пилот вскрыл конверт и ввёл код — он в здравом уме."}
+            ]
+        },
+        {
+            q: "Какой позывной был у Юрия Гагарина?",
+            img: "q11.jpg",
+            ans: [
+                {t: "Заря", ok: false, c: "Неверно, это позывной 'ЦУП'- Центра управления полётами."},
+                {t: "Кедр", ok: true, c: "Верно, это был его личный позывной, привилегия первого космонавта."},
+                {t: "Орёл", ok: false, c: "Неверно, 'Орёл' - позывной Германа Титова."}
+            ]
+        },
+        {
+            q: "Как Гагарин вернулся на Землю?",
+            img: "q12.jpg",
+            ans: [
+                {t: "Внутри спускаемой капсулы", ok: false, c: "Неверно, капсула приземлилась пустой."},
+                {t: "Катапультировался из капсулы и приземлился на парашюте", ok: true, c: "Верно! На высоте 7 км он покинул капсулу и спускался отдельно, на парашюте."},
+                {t: "Приводнился в океан в космическом корабле", ok: false, c: "Неверно, он приземлился в поле в Саратовской области, сейчас в этом месте расположен 'Парк покорителей космоса им. Юрия Гагарина'."}
+            ]
+        },
+        {
+            q: "В каком звании Гагарин улетал в космос?",
+            img: "q13.png",
+            ans: [
+                {t: "Майор", ok: false, c: "Неверно, в этом звании он уже принимал поздравления на Земле."},
+                {t: "Старший лейтенант", ok: true, c: "Верно! А вернулся уже майором — его повысили сразу на два звания."},
+                {t: "Капитан", ok: false, c: "Неверно, капитаном он пробыл всего несколько минут в приказе."}
+            ]
+        }
+    ];
+
+    let current = 0, score = 0, name = "", isBoss = false;
+
+    function start() {
+        name = document.getElementById('p-name').value.trim();
+        if (!name) return alert("Введите имя пилота!");
+
+        if (name.toLowerCase().replace('ё', 'е') === 'королев') {
+            isBoss = true;
+            document.body.classList.add('easter-egg');
+        }
+
+        document.getElementById('display-name').innerText = "Пилот: " + name;
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('finish-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        show();
+    }
+
+    function show() {
+        const q = questions[current];
+        document.getElementById('q-img').src = q.img;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('q-num').innerText = current + 1;
+
+        const optDiv = document.getElementById('options');
+        optDiv.innerHTML = '';
+        document.getElementById('commentary').style.display = 'none';
+        document.getElementById('commentary').innerText = '';
+        document.getElementById('next-btn').style.display = 'none';
+
+        q.ans.forEach((a, idx) => {
+            const b = document.createElement('button');
+            b.className = 'option-btn';
+            b.type = 'button';
+            b.innerText = a.t;
+
+            b.onclick = () => {
+                document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                document.getElementById('commentary').innerText = a.c;
+                document.getElementById('commentary').style.display = 'block';
+
+                if (a.ok || isBoss) {
+                    b.classList.add('correct');
+                    score++;
+                } else {
+                    b.classList.add('wrong');
+                    document.querySelectorAll('.option-btn').forEach((btn, btnIdx) => {
+                        if (questions[current].ans[btnIdx].ok) btn.classList.add('correct');
+                    });
+                }
+
+                document.getElementById('score').innerText = score;
+                document.getElementById('next-btn').style.display = 'block';
+                document.getElementById('next-btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            };
+
+            optDiv.appendChild(b);
+        });
+
+        document.getElementById('quiz-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function next() {
+        current++;
+        if (current < questions.length) {
+            show();
+        } else {
+            finish();
+        }
+    }
+
+    function finish() {
+        document.getElementById('quiz-screen').classList.remove('active');
+        document.getElementById('finish-screen').classList.add('active');
+        document.getElementById('final-res').innerText = `Твой результат: ${score} из ${questions.length}`;
+
+        if (isBoss) {
+            document.getElementById('final-title').innerText = "Главный Конструктор: Королёв";
+        }
+        
+        const video = document.getElementById('final-video');
+        document.getElementById('vid-container').style.display = 'block';
+        video.load();
+        video.play().catch(() => console.log("Видео готово к просмотру"));
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function downloadCertificate() {
+        const template = new Image();
+        template.crossOrigin = "anonymous";
+        template.src = "certificate_template.png";
+
+        template.onload = function () {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = template.width;
+            canvas.height = template.height;
+
+            ctx.drawImage(template, 0, 0);
+
+            const safeName = (name || "Пилот").trim();
+            const dateText = new Date().toLocaleDateString("ru-RU");
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#ffffff";
+
+            ctx.font = "bold 54px Arial";
+            ctx.fillText(safeName, canvas.width * 0.61, canvas.height * 0.43);
+
+            ctx.font = "bold 34px Arial";
+            ctx.fillStyle = "#3CFFD9";
+            ctx.fillText(`${score} из ${questions.length}`, canvas.width * 0.60, canvas.height * 0.64);
+
+            ctx.font = "28px Arial";
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(dateText, canvas.width * 0.60, canvas.height * 0.745);
+
+            let resultText = "Спасибо за участие!";
+            if (score >= 11) resultText = "Отличный результат!";
+            else if (score >= 8) resultText = "Хороший результат!";
+            else if (score >= 5) resultText = "Молодец!";
+
+            ctx.font = "bold 38px Arial";
+            ctx.fillStyle = "#FFD75E";
+            ctx.fillText(resultText, canvas.width * 0.60, canvas.height * 0.85);
+
+            const link = document.createElement('a');
+            link.download = `sertifikat_${safeName}_${score}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        };
+
+        template.onerror = function () {
+            alert("Не удалось загрузить certificate_template.png. Проверьте, что файл лежит рядом с index.html");
+        };
+    }
+</script>
+
+</body>
+</html>
