@@ -609,8 +609,10 @@
 
             // Результат
             ctx.fillStyle = "#3CFFD9";
-            ctx.font = "bold 34px Arial";
-            ctx.fillText(`${score} из ${questions.length}`, canvas.width * 0.655, canvas.height * 0.64);
+            ctx.font = "bold 30px Arial";
+            ctx.textAlign = "left";
+            ctx.fillText(`${score} из ${questions.length}`, canvas.width * 0.72, canvas.height * 0.64);
+            ctx.textAlign = "center";
 
             // Дата
             ctx.fillStyle = "#ffffff";
